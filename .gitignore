@@ -1,0 +1,17 @@
+node_modules/
+data/notices.json
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+.wrangler/
+
+# 저장소 정리(2026-11-06): 보조 프로젝트·OS 파일
+extras/**/node_modules/
+extras/**/.env
+extras/**/.vercel/
+extras/**/dist/
+*.log
+.DS_Store
+Thumbs.db

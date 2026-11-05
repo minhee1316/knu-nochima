@@ -1,0 +1,41 @@
+{
+ "collectedAt": "2026-11-05T14:11:44.131Z",
+ "events": [
+  {
+   "id": "ev-cc-119",
+   "region": "춘천",
+   "source": "춘천여행ON",
+   "title": "춘천 시티투어 가을마중투어",
+   "start": "2026-09-30",
+   "end": "2026-11-29",
+   "url": "https://www.chuncheon.go.kr/tour/festival-event/main/view/?tourEventId=119"
+  },
+  {
+   "id": "ev-cc-131",
+   "region": "춘천",
+   "source": "춘천여행ON",
+   "title": "2026 춘천 선셋 아일랜드 기부런",
+   "start": "2026-11-14",
+   "end": "2026-11-14",
+   "url": "https://www.chuncheon.go.kr/tour/festival-event/main/view/?tourEventId=131"
+  },
+  {
+   "id": "ev-sc-2026-11-06-2026_너와포차거리",
+   "region": "삼척",
+   "source": "삼척관광문화재단",
+   "title": "2026 너와포차거리",
+   "start": "2026-11-06",
+   "end": "2026-11-07",
+   "url": "https://www.stcf.or.kr/01298/01402.web?smonth=2026-11&selday=6"
+  },
+  {
+   "id": "ev-sc-2026-11-24-이사부나이트시네마",
+   "region": "삼척",
+   "source": "삼척관광문화재단",
+   "title": "이사부나이트시네마",
+   "start": "2026-11-24",
+   "end": "2026-11-24",
+   "url": "https://www.stcf.or.kr/01298/01402.web?smonth=2026-11&selday=24"
+  }
+ ]
+}

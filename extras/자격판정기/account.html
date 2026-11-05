@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>놓치지마 계정</title>
+<!-- 계정 화면은 index.html 안으로 합쳤다. 예전 링크(account.html#signup 등)를 같은 화면으로 보낸다. -->
+<script>location.replace('index.html'+(['#login','#signup','#find'].includes(location.hash)?location.hash:'#login'));</script>
+</head><body><p><a href="index.html#login">놓치지마 로그인 화면으로 이동</a></p></body></html>

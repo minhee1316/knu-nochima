@@ -1,0 +1,26 @@
+{
+ "live": 122,
+ "ok": 23,
+ "warn": 67,
+ "no": 32,
+ "counsel": {
+  "checked": 352,
+  "before": 107471,
+  "after": 468,
+  "items": 5
+ },
+ "tools": 14,
+ "school": 202,
+ "aiAnalyzed": 123,
+ "contest": 58,
+ "activity": 44,
+ "gov": 130,
+ "kosaf": 18,
+ "g24": 109,
+ "kstartup": 3,
+ "events": 4,
+ "perks": 20,
+ "imageOnly": 40,
+ "files": 248,
+ "chars": 96872
+}

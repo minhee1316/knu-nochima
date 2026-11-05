@@ -1,0 +1,1 @@
+CREATE TABLE bokjiro_cache (id TEXT PRIMARY KEY, stamp INTEGER NOT NULL, payload TEXT NOT NULL);

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "event:chuncheon:119",
+    "kind": "local-event",
+    "region": "춘천",
+    "board": "지역 행사",
+    "title": "춘천 시티투어 가을마중투어",
+    "startAt": "2026-09-30",
+    "endAt": "2026-11-29",
+    "source": "춘천여행ON",
+    "url": "https://www.chuncheon.go.kr/tour/festival-event/main/view/?tourEventId=119",
+    "body": "춘천시 관광포털에 등록된 행사입니다. 참가 대상과 자세한 일정은 원문에서 확인하세요.",
+    "collectedAt": "2026-11-05T11:04:22.818Z"
+  },
+  {
+    "id": "event:samcheok:2026-11-06:2026 너와포차거리",
+    "kind": "local-event",
+    "region": "삼척",
+    "board": "지역 행사",
+    "title": "2026 너와포차거리",
+    "startAt": "2026-11-06",
+    "endAt": "2026-11-07",
+    "source": "삼척관광문화재단",
+    "url": "https://www.stcf.or.kr/01298/01402.web?smonth=2026-11&selday=7",
+    "body": "■ 2026 너와포차거리 - 기간 : 2026. 11. 6.(금) ~ 2026. 11. 7.(토) - 일시 : 17:00 ~ 22:00 - 장소 : 삼척해변 - 내용 : 먹거리·볼거리·즐길거리 등을 연계한 5가지 테마의 프로그램 운영",
+    "collectedAt": "2026-11-05T11:04:22.818Z"
+  },
+  {
+    "id": "event:chuncheon:131",
+    "kind": "local-event",
+    "region": "춘천",
+    "board": "지역 행사",
+    "title": "2026 춘천 선셋 아일랜드 기부런",
+    "startAt": "2026-11-14",
+    "endAt": "2026-11-14",
+    "source": "춘천여행ON",
+    "url": "https://www.chuncheon.go.kr/tour/festival-event/main/view/?tourEventId=131",
+    "body": "춘천시 관광포털에 등록된 행사입니다. 참가 대상과 자세한 일정은 원문에서 확인하세요.",
+    "collectedAt": "2026-11-05T11:04:22.818Z"
+  },
+  {
+    "id": "event:samcheok:2026-11-24:이사부나이트시네마",
+    "kind": "local-event",
+    "region": "삼척",
+    "board": "지역 행사",
+    "title": "이사부나이트시네마",
+    "startAt": "2026-11-24",
+    "endAt": "2026-11-24",
+    "source": "삼척관광문화재단",
+    "url": "https://www.stcf.or.kr/01298/01402.web?smonth=2026-11&selday=24",
+    "body": "이사부나이트시네마",
+    "collectedAt": "2026-11-05T11:04:22.818Z"
+  }
+]

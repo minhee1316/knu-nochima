@@ -1,0 +1,15 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    { "idx": 0, "version": "6", "when": 1793876400000, "tag": "0000_accounts", "breakpoints": true },
+    { "idx": 1, "version": "6", "when": 1793941200000, "tag": "0001_scholarships", "breakpoints": true },
+    { "idx": 2, "version": "6", "when": 1793941200001, "tag": "0002_startup_feed", "breakpoints": true },
+    { "idx": 3, "version": "6", "when": 1793941200002, "tag": "0003_gom_usage", "breakpoints": true },
+    { "idx": 4, "version": "6", "when": 1793941200003, "tag": "0004_work24_feed", "breakpoints": true },
+    { "idx": 5, "version": "6", "when": 1793941200004, "tag": "0005_gov24", "breakpoints": true },
+    { "idx": 6, "version": "6", "when": 1793941200005, "tag": "0006_gov24_cache_tables", "breakpoints": true },
+    { "idx": 7, "version": "6", "when": 1793941200006, "tag": "0007_bokjiro_cache", "breakpoints": true },
+    { "idx": 8, "version": "6", "when": 1793941200007, "tag": "0008_qnet", "breakpoints": true }
+  ]
+}

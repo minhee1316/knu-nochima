@@ -1,0 +1,3 @@
+CREATE TABLE gov24_state (id INTEGER PRIMARY KEY, generation TEXT, stamp INTEGER NOT NULL DEFAULT 0, lease TEXT, lease_until INTEGER NOT NULL DEFAULT 0, retry_after INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE gov24_parts (generation TEXT NOT NULL, part INTEGER NOT NULL, payload TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY(generation,part));
+CREATE TABLE gov24_detail (id TEXT PRIMARY KEY, stamp INTEGER NOT NULL, payload TEXT NOT NULL);

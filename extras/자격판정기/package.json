@@ -1,0 +1,17 @@
+{
+  "name": "knu-eligibility",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "test": "node api/extract.test.mjs && node api/notices.test.mjs && node lib/dup.test.mjs && node lib/ratelimit.test.mjs && node scripts/knu.test.mjs && node api/auth.test.mjs && node scripts/events.test.mjs && node scripts/gov.test.mjs && node scripts/community.test.mjs && node scripts/contests.test.mjs && node lib/categories.test.mjs && node lib/gomduri.test.mjs",
+    "collect": "node scripts/collect.mjs",
+    "analyze": "node scripts/build.mjs",
+    "update": "node scripts/collect.mjs && node scripts/events.mjs && node scripts/gov.mjs && node scripts/community.mjs && node scripts/contests.mjs && node scripts/build.mjs",
+    "contests": "node scripts/contests.mjs",
+    "community": "node scripts/community.mjs",
+    "gov": "node scripts/gov.mjs",
+    "events": "node scripts/events.mjs",
+    "export": "node scripts/export-standalone.mjs"
+  }
+}

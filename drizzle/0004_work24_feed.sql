@@ -1,0 +1,1 @@
+CREATE TABLE work24_feed (id INTEGER PRIMARY KEY, stamp TEXT NOT NULL, payload TEXT NOT NULL);
