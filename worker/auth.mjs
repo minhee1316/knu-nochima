@@ -100,14 +100,21 @@ async function handleAuth(request, env) {
   if (error) return apiJson({ error }, 400);
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
   if (path === '/api/auth/signup') {
+    if (body.role!=null&&!['학생','교직원'].includes(body.role)) return apiJson({error:'가입 구분은 학생 또는 교직원을 선택해 주세요.'},400);
     if (await limited(env.DB, `signup:${ip}`, 5, 60 * 60 * 1000)) return apiJson({ error: '가입 요청이 많습니다. 잠시 뒤 다시 시도해 주세요.' }, 429);
     const existing = await env.DB.prepare('SELECT id FROM accounts WHERE username = ?').bind(username).first();
     if (existing) return apiJson({ error: '이미 사용 중인 아이디입니다.' }, 409);
     const account = { id: crypto.randomUUID(), username };
     const salt = randomToken(16);
     try {
-      await env.DB.prepare('INSERT INTO accounts (id, username, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?, ?)')
-        .bind(account.id, username, salt, await passwordHash(password, salt), new Date().toISOString()).run();
+      const createdAt = new Date().toISOString();
+      const role = body.role || '학생';
+      await env.DB.batch([
+        env.DB.prepare('INSERT INTO accounts (id, username, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?, ?)')
+          .bind(account.id, username, salt, await passwordHash(password, salt), createdAt),
+        env.DB.prepare('INSERT INTO profiles (account_id, data_json, updated_at) VALUES (?, ?, ?)')
+          .bind(account.id, JSON.stringify({accountRole:role,conditions:{role, affiliation:role==='교직원'?'교직원':''}}), createdAt)
+      ]);
     } catch (cause) {
       console.error('signup storage failure', cause);
       return apiJson({ error: '계정을 만들 수 없습니다. 잠시 뒤 다시 시도해 주세요.' }, 500);
@@ -134,7 +141,7 @@ async function handleProfile(request, env) {
   }
   if (!validOrigin(request)) return apiJson({ error: '요청 출처를 확인할 수 없습니다.' }, 403);
   if (request.method === 'DELETE') {
-    await env.DB.prepare('DELETE FROM profiles WHERE account_id = ?').bind(account.id).run();
+    await env.DB.prepare("UPDATE profiles SET data_json=json_object('accountRole',COALESCE(json_extract(data_json,'$.accountRole'),json_extract(data_json,'$.conditions.role'),'학생')),updated_at=? WHERE account_id=?").bind(new Date().toISOString(),account.id).run();
     return apiJson({ profile: null });
   }
   if (request.method !== 'PUT') return apiJson({ error: '지원하지 않는 요청입니다.' }, 405);
@@ -147,7 +154,7 @@ async function handleProfile(request, env) {
   for (const [field, max] of Object.entries({ lastGpa: 4.5, cumulativeGpa: 4.5, earnedCredits: 300, completedSemesters: 20, lastCredits: 40, lastPercentile: 100, incomeBracket: 10 })) {
     if (profile[field] && (!Number.isFinite(Number(profile[field])) || Number(profile[field]) < 0 || Number(profile[field]) > max)) return apiJson({ error: `${field} 입력값을 확인해 주세요.` }, 400);
   }
-  await env.DB.prepare('INSERT INTO profiles (account_id, data_json, updated_at) VALUES (?, ?, ?) ON CONFLICT(account_id) DO UPDATE SET data_json = excluded.data_json, updated_at = excluded.updated_at')
+  await env.DB.prepare("INSERT INTO profiles (account_id,data_json,updated_at) VALUES (?,?,?) ON CONFLICT(account_id) DO UPDATE SET data_json=json_set(excluded.data_json, '$.accountRole', COALESCE(json_extract(profiles.data_json,'$.accountRole'),json_extract(profiles.data_json,'$.conditions.role'),'학생')), updated_at=excluded.updated_at")
     .bind(account.id, JSON.stringify(profile), new Date().toISOString()).run();
   return apiJson({ profile });
 }

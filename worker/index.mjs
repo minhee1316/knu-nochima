@@ -183,6 +183,7 @@ export default {
     if(url.pathname==='/api/welfare')return Bokjiro.handle(request,env);
     if(url.pathname==='/api/exams')return Qnet.handle(request,env);
     if(url.pathname==='/api/work24')return handleWork24(request,env);
+    if(url.pathname==='/api/scholarship-statistics')return KosafStats.handle(request,env);
     if(url.pathname==='/api/scholarships'||url.pathname==='/api/scholarships/chat')return handleKosaf(request,env);
     if(url.pathname==='/api/startups')return handleStartups(request,env);
     if(url.pathname==='/api/school-attachment' && request.method==='GET') return schoolAttachment(url).catch(()=>new Response('Attachment unavailable',{status:502}));

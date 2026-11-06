@@ -10,6 +10,7 @@
     { "idx": 5, "version": "6", "when": 1793941200004, "tag": "0005_gov24", "breakpoints": true },
     { "idx": 6, "version": "6", "when": 1793941200005, "tag": "0006_gov24_cache_tables", "breakpoints": true },
     { "idx": 7, "version": "6", "when": 1793941200006, "tag": "0007_bokjiro_cache", "breakpoints": true },
-    { "idx": 8, "version": "6", "when": 1793941200007, "tag": "0008_qnet", "breakpoints": true }
+    { "idx": 8, "version": "6", "when": 1793941200007, "tag": "0008_qnet", "breakpoints": true },
+    { "idx": 9, "version": "6", "when": 1793941200008, "tag": "0009_scholarship_statistics", "breakpoints": true }
   ]
 }

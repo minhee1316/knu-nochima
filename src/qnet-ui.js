@@ -1,12 +1,41 @@
 (()=>{
   const $=id=>document.getElementById(id);
   const normalize=text=>String(text).normalize('NFKC').replace(/\s/g,'').toLowerCase();
-  const directory=JSON.parse($('qnet-subjects').textContent).items
-    .map(([code,name])=>({code,name,key:normalize(name)})).sort((a,b)=>b.key.length-a.key.length);
+  const registry=JSON.parse($('qnet-subjects').textContent);
+  const directory=registry.items
+    .map(([code,name,category])=>({code,name,category,key:normalize(name)})).sort((a,b)=>b.key.length-a.key.length);
   const clock=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'});
   const current=Number(clock().slice(0,4)),yearBox=$('exam-year'),categoryBox=$('exam-category');
   for(const year of [current+1,current,current-1])yearBox.add(new Option(year+'년',String(year),false,year===current));
   const keys=new Map(),byId=new Map();
+  const subjectBox=$('exam-subject'),regBox=$('exam-reg-filter');
+  function portal(category,code){
+    if(['C','W'].includes(category))return 'https://c.q-net.or.kr/';
+    if(category==='S'){
+      const subject=directory.find(s=>s.code===code);
+      const family=Object.keys(registry.applySites).sort((a,b)=>b.length-a.length).find(name=>subject?.key.includes(normalize(name)));
+      return registry.applySites[family]||'https://www.q-net.or.kr/man001.do?gSite=Q';
+    }
+    return 'https://www.q-net.or.kr/rcv202.do?id=rcv20210&gSite=Q&gId=';
+  }
+  function registrations(n,day=clock()){
+    return n.periods.filter(p=>p.order===0||p.order===3).map(p=>({...p,
+      state:p.end&&p.end<day?'closed':p.start&&p.start>day?'future':p.start&&p.end?'open':'unknown'
+    })).sort((a,b)=>String(a.start||a.end).localeCompare(String(b.start||b.end)));
+  }
+  function currentWindow(n){
+    const windows=registrations(n);
+    return windows.find(p=>p.state==='open')||windows.find(p=>p.state==='future')||windows.find(p=>p.state==='unknown')||windows.at(-1);
+  }
+  const captions={open:'접수 기간 중',future:'접수 예정',closed:'접수 종료',unknown:'접수일 확인'};
+  const registrationLabel=n=>captions[currentWindow(n)?.state||'unknown'];
+  const isOpen=n=>registrations(n).some(p=>p.state==='open');
+  function refreshSubjects(){
+    const subjects=directory.filter(s=>!categoryBox.value||categoryBox.value===s.category).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+    subjectBox.replaceChildren(new Option(subjects.length?'전체 종목':'구분별 회차 조회',''),...subjects.map(s=>new Option(s.name,s.code)));
+    subjectBox.disabled=!subjects.length;
+  }
+  refreshSubjects();
   let activeKey='',timer;
   function parse(text,defaultYear=current){
     const normalized=normalize(text),subject=directory.find(s=>normalized.includes(s.key)||text.trim()===s.code);
@@ -23,6 +52,7 @@
       (a.start||a.end).localeCompare(b.start||b.end))[0];
   }
   function distance(n){
+    if(n.registrationSort)return (isOpen(n)?'0':'1')+n.registrationSort;
     const p=next(n);return p?(p.start||p.end):'9999';
   }
   function paper(item){
@@ -70,13 +100,29 @@
     if(dedicated)$('ask-q').setAttribute('list','exam-names');else $('ask-q').removeAttribute('list');
     if(!show){activeKey='';clearTimeout(timer);return [];}
     const ctx=parse(text,yearBox.value||current);
+    subjectBox.value=ctx.subject?.code||'';
+    $('exam-portal').href=portal(categoryBox.value||ctx.subject?.category,ctx.subject?.code);
     if(activeKey!==ctx.key){activeKey=ctx.key;clearTimeout(timer);}
     const e=keys.get(ctx.key);
     if(!e?.pending&&!(e?.until>Date.now())){
       clearTimeout(timer);timer=setTimeout(()=>read(ctx),140);
     }
     $('exam-status').textContent=e?.status||'큐넷 시험일정을 불러오는 중…';
-    return narrow(e?.rows||[],ctx,categoryBox.value||ctx.category);
+    const pool=narrow(e?.rows||[],ctx,categoryBox.value||ctx.category);
+    if(!dedicated)return pool;
+    const rows=[];
+    for(const n of pool){
+      const windows=registrations(n);
+      const relevant=windows.filter(p=>regBox.value?p.state===regBox.value:p.state!=='closed');
+      if(!relevant.length&&(regBox.value||windows.length))continue;
+      const phase=relevant.find(p=>p.state==='open')||relevant[0];
+      rows.push({...n,snippet:phase?phase.label+' · '+phase.text:'공개된 접수일이 없어 공식 일정 확인이 필요해요.',registrationSort:phase?.start||phase?.end||'9999'});
+    }
+    if(e&&!e.pending&&e.rows.length&&!rows.length){
+      const closed=pool.flatMap(n=>registrations(n)).filter(p=>p.state==='closed').sort((a,b)=>b.end.localeCompare(a.end))[0];
+      $('exam-status').textContent=e.status+' · 선택한 조건에 해당하는 접수 일정이 없어요.'+(ctx.subject&&closed?' 최근 접수 종료: '+closed.label+' '+closed.end:'');
+    }
+    return rows;
   }
   function searchMatch(n,text){
     const ctx=parse(text);
@@ -105,12 +151,21 @@
     for(const [label,value] of fields){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;dl.append(dt,dd);}
     const note=document.createElement('p');note.className='hint';
     note.textContent=(n.code?'':'종목별 일정은 자격 종목명으로 검색하세요. ')+(n.periods.length?'접수 시각과 시험장은 큐넷 원문에서 확인하세요.':'공개된 날짜가 없어 큐넷 원문 확인이 필요해요.');
-    $('dlg-view').replaceChildren(dl,note);
+    const section=$('dlg-view');
+    section.replaceChildren(dl,note);
+    if(isOpen(n)){
+      const a=document.createElement('a');a.href=portal(n.category,n.code);a.target='_blank';a.rel='noopener';a.className='btn blue sm';a.textContent='공식 사이트에서 원서접수 ↗';section.append(a);
+    }
   }
   const dl=$('exam-names');
   for(const s of [...directory].sort((a,b)=>a.name.localeCompare(b.name,'ko')))dl.append(new Option(s.name,s.name));
-  yearBox.onchange=categoryBox.onchange=()=>{view.page=1;render();};
-  window.examFeed={list,lookup,recognizes,searchMatch,parse,showDetails,distance,find:id=>byId.get(id),
+  yearBox.onchange=regBox.onchange=()=>{view.page=1;render();};
+  function selectSubject(name){
+    $('ask-q').value=name;view.q=name;view.page=1;render();
+  }
+  categoryBox.onchange=()=>{refreshSubjects();selectSubject('');};
+  subjectBox.onchange=()=>selectSubject(directory.find(s=>s.code===subjectBox.value)?.name||'');
+  window.examFeed={list,lookup,recognizes,searchMatch,parse,showDetails,distance,registrationLabel,isOpen,portal,find:id=>byId.get(id),
     fact:n=>n.periods.map(p=>p.label+' '+p.text).join(' · ')||'일정 미제공',
     status:text=>keys.get(parse(text).key)?.status||'큐넷에서 종목명을 확인해 주세요.'};
   function open(){if(location.hash==='#exams'){view.onlyInt=false;openCatalogType('자격시험');}}

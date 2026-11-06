@@ -44,6 +44,8 @@
       }
       detail.replaceChildren(node('p',r.status+' · 모집기간의 날짜 비교 결과','kosaf-info'),fields,
         node('p',syncText(d),'kosaf-info'),node('p','출처 · 한국장학재단. 신청 전 운영기관의 최신 공고를 확인하세요.','kosaf-source'));
+      const listed=window.gomAssist?.find('kosaf:'+id);
+      if(listed){const basis=reviewBlock(listed,judge(listed,listProfile()));if(basis)detail.insertAdjacentHTML('afterbegin',basis);}
       if(d.warning)detail.prepend(node('p','마지막 정상 자료를 표시합니다. '+d.warning,'kosaf-state'));
     }catch(err){if(!active.signal.aborted)detail.textContent=err.code?err.message:'장학금 상세 정보를 불러오지 못했어요. 잠시 뒤 다시 조회해 주세요.';}
   }

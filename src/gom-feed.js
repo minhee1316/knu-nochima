@@ -4,7 +4,7 @@ const feedOrigin=location.protocol==='file:'?'https://knu-esungan-preview-202611
 // Accept a whole audience clause so a course title, preference or future grade cannot exclude a student.
 function listedGrades(text){
   for(const part of String(text||'').split(/\n|[.;。]/)){
-    const m=part.trim().match(/^(?:[-·○•]\s*)?(?:신청\s*대상|지원\s*대상|지원\s*자격|모집\s*대상|참여\s*대상|선발\s*대상|대상)\s*[:：]\s*(?:강원대학교\s*)?(?:학부(?:생)?\s*|대학교?\s*)?([1-4])\s*(?:학년\s*)?(?:([~∼–-])\s*([1-4])\s*)?학년\s*(?:재학생|학부생|학생)?\s*(?:만|대상)?\s*$/);
+    const m=part.trim().match(/^(?:[-·○•]\s*)?(?:신청\s*대상|지원\s*대상|지원\s*자격|모집\s*대상|참여\s*대상|선발\s*대상|대상)\s*[:：]\s*(?:강원대학교\s*)?(?:학부(?:생)?\s*|대학교?\s*)?([1-5])\s*(?:학년\s*)?(?:([~∼–-])\s*([1-5])\s*)?학년\s*(?:재학생|학부생|학생)?\s*(?:만|대상)?\s*$/);
     if(m&&(!m[3]||+m[3]>=+m[1]))return GRADE.filter(g=>+g>=+m[1]&&+g<=+(m[3]||m[1]));
   }
   return null;
@@ -40,7 +40,8 @@ function combineSchool(old,n){
   return {...old,title:n.title,url:n.url,posted:n.posted||old.posted,body:old.body||n.body,files:n.files?.length?n.files:old.files};
 }
 function loadShared(){
-  const initial=window.EMBED?.notices||[];
+  const external=JSON.parse(document.getElementById('external-notices').textContent);
+  const initial=[...(window.EMBED?.notices||[]),...external.map(n=>({...n,cond:{grade:listedGrades(n.body)}}))];
   NOTICES.splice(0,NOTICES.length,...initial);
   refreshFeed();render();
 }
@@ -63,6 +64,7 @@ async function refreshFeed(force=false){
       for(const raw of data.items){const n=feedEvent(raw);if(n){const k=n.region+'|'+n.title+'|'+n.start;if(!seen.has(k)){rows.set(n.id,n);seen.add(k);}}}
     }
     NOTICES.splice(0,NOTICES.length,...rows.values());
+    window.facultyDesk?.refresh();
     const stamp=(r,last)=>r.status==='fulfilled'&&r.value.mode==='live'&&r.value.updatedAt?'확인 '+new Date(r.value.updatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):last.replace(' · 연결 지연','')+' · 연결 지연';
     feedState.school=stamp(a,feedState.school);feedState.events=stamp(b,feedState.events);
     $('#sample-note').textContent='학교 공지 '+feedState.school+' / 지역 행사 '+feedState.events;

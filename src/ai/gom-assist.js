@@ -17,12 +17,12 @@
         const next=new Map();
         for(const raw of data.items){
           const id='kosaf:'+raw.id;
-          const facts=[['지원내역',raw.benefit],['지역',raw.region],['성적',raw.gpa],['소득',raw.income],['자격',raw.specific],['서류',raw.docs]].filter(([,v])=>useful(v));
+          const facts=[['학년·과정',raw.grade],['학과',raw.major?.includes('제한없음')?'제한없음':raw.major],['지원내역',raw.benefit],['지역',raw.region],['성적',raw.gpa],['소득',raw.income],['자격',raw.specific],['서류',raw.docs]].filter(([,v])=>useful(v));
           next.set(id,{id,kind:'kosaf',type:'장학금',source:'한국장학재단',title:raw.name,org:raw.org,start:raw.start,deadline:raw.end,
             snippet:useful(raw.benefit),eligibility:[raw.specific,raw.region,raw.gpa].filter(useful).join(' · '),aidType:useful(raw.aidType),
             body:facts.map(([k,v])=>k+' · '+v).join('\n'),cond:{},tags:[],docs:useful(raw.docs)?[raw.docs]:[],url:safeLink(raw.website),raw});
         }
-        scholarships=next;loaded=Date.now();stale=!!data.warning;
+        scholarships=next;loaded=Date.now();stale=!!data.warning;render();
       }catch{stale=true;}finally{request=null;}
     })();
     return request;
@@ -52,6 +52,7 @@
     return {rows:ranked,topic:query.topic?.id,foundation,stale:(foundation||['housing','living','tuition'].includes(query.topic?.id))&&stale};
   }
   function fact(n){
+    if(n.kind==='statistics')return '자료 기준일 '+n.sourceDate+' · '+n.body.replace(/\n/g,' / ');
     if(n.kind==='exam')return window.examFeed.fact(n);
     if(n.source==='복지로')return [n.org,n.summary].filter(Boolean).join(' · ');
     if(n.kind==='benefit')return [n.org,'신청기한 · '+(n.due||'원문 확인 필요'),n.target?.slice(0,130)].filter(Boolean).join(' · ');
@@ -69,6 +70,7 @@
     return null;
   }
   async function lookup(plan,pool,question=''){
+    if(plan.source==='statistics')return window.scholarshipStats.lookup(question);
     if(plan.source==='exams')return window.examFeed.lookup(question,plan.terms);
     let rows=pool;
     if(['benefits','welfare'].includes(plan.source)){
@@ -138,7 +140,9 @@
         err.message==='no_evidence'?'원문 근거를 확인할 수 있는 검색 결과만 표시했어요.':'Gemini 연결이 지연되어 공고 검색 결과를 표시했어요.';
     }
   }
-  window.gomAssist={candidates,find:id=>scholarships.get(String(id)),fact,explain,consult,lookup,enabled:()=>checkbox.checked};
+  window.gomAssist={scholarships:()=>Array.from(scholarships.values()),candidates,find:id=>scholarships.get(String(id)),fact,explain,consult,lookup,enabled:()=>checkbox.checked};
   function openChat(){if(location.hash==='#gomduri')gdOpen();}
   addEventListener('hashchange',openChat);openChat();
+  readScholarships();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)readScholarships();});
 })();

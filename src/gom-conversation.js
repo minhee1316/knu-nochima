@@ -15,7 +15,7 @@
   const current=()=>({...profile,...(state.student||{}),interests:[...new Set([...(profile.interests||[]),...(state.student?.interests||[])])]});
   const schoolOnly=n=>!['event','startup','training'].includes(n.kind);
   const available=p=>NOTICES.map(n=>({...n,...judge(n,p),left:dleft(n.deadline)})).filter(n=>n.left>=0&&n.s!=='no');
-  const findById=id=>NOTICES.find(n=>String(n.id)===String(id))||window.gomAssist?.find(id)||window.govBenefits?.find(id)||window.examFeed?.find(id);
+  const findById=id=>NOTICES.find(n=>String(n.id)===String(id))||window.gomAssist?.find(id)||window.govBenefits?.find(id)||window.examFeed?.find(id)||window.scholarshipStats?.find(id);
   const joined=n=>[n.title,n.summary,n.snippet,n.body,...(n.tags||[])].join(' ').toLowerCase();
   const money=v=>Number(v||0).toLocaleString('ko-KR')+'원';
   const say=t=>gdAdd('bot',t);
@@ -32,13 +32,14 @@
       const card=document.createElement('div');card.className='gd-item';const btn=document.createElement('button');btn.className='gom-result';btn.type='button';
       btn.textContent=(i+1)+'. '+n.title;btn.onclick=()=>{const live=findById(id);if(!live)return say('이 항목은 최신 목록에서 빠졌어요. 다시 찾아볼게요.');state.focus=id;showDetail(live,p,why);};
       const info=document.createElement('div');info.className='meta';
-      info.textContent=n.kind==='exam'?'한국산업인력공단 · '+n.categoryName:n.kind==='benefit'?[n.org,n.field,n.source].filter(Boolean).join(' · '):n.kind==='training'?[n.format,n.address,n.source].filter(Boolean).join(' · '):n.kind==='event'?[n.region,[n.start,n.deadline].filter(Boolean).join(' ~ '),n.source].filter(Boolean).join(' · '):[n.type,n.deadline?'마감 '+n.deadline:'마감일 확인 필요',judge(n,p).s==='ok'?'입력 조건 충족':'추가 조건 확인',n.source].filter(Boolean).join(' · ');
+      info.textContent=n.kind==='statistics'?'한국장학재단 통계 · 자료 기준일 '+n.sourceDate:n.kind==='exam'?'한국산업인력공단 · '+n.categoryName:n.kind==='benefit'?[n.org,n.field,n.source].filter(Boolean).join(' · '):n.kind==='training'?[n.format,n.address,n.source].filter(Boolean).join(' · '):n.kind==='event'?[n.region,[n.start,n.deadline].filter(Boolean).join(' ~ '),n.source].filter(Boolean).join(' · '):[n.type,n.deadline?'마감 '+n.deadline:'마감일 확인 필요',judge(n,p).s==='ok'?'입력 조건 충족':'추가 조건 확인',n.source].filter(Boolean).join(' · ');
       card.append(btn,info);
       if(why){const line=document.createElement('p');line.className='gd-why';line.textContent=why;card.append(line);}
       msg.append(card);
     });$('#gd-log').scrollTop=$('#gd-log').scrollHeight;
   }
   function showDetail(n,p,why){
+    if(n.kind==='statistics')return window.scholarshipStats.show(n);
     if(n.kind==='kosaf')return window.gomScholarshipDetail(n.id.slice(6));
     GD.why=why?{who:[p.campus,p.grade&&p.grade+'학년'].filter(Boolean).join(' · ')||'상담 조건',why:[why],ev:'',check:[]}:null;
     try{openDetail(n,p);}finally{GD.why=null;}
@@ -381,7 +382,7 @@
       const phrase=text.replace(/\s+/g,'');
       named=window.govBenefits.items().some(n=>n.source==='복지로'&&phrase.includes(n.title.replace(/\s+/g,'')));
     }
-    let plan=isExamQuestion(text)?{mode:'search',source:'exams',terms:[],city:''}:named?{mode:'search',source:'welfare',city:'',terms:[]}:await ai.consult(text,context);
+    let plan=window.scholarshipStats?.recognizes(text)?{mode:'search',source:'statistics',terms:[],city:''}:isExamQuestion(text)?{mode:'search',source:'exams',terms:[],city:''}:named?{mode:'search',source:'welfare',city:'',terms:[]}:await ai.consult(text,context);
     if(session!==activeSession)return true;
     if(welfareQuestion&&(!plan||plan.mode==='reply'))return false;
     if(welfareQuestion&&plan.mode==='search')plan={...plan,source:'welfare'};
@@ -435,7 +436,7 @@
     if(!rows.length){
       state.items=[];state.focus=null;
       const query=[plan.city,...plan.terms].filter(Boolean).join(' · ');
-      say((query?'“'+query+'” 조건으로 ':'')+'현재 읽을 수 있는 목록에서 일치하는 항목을 찾지 못했어요.'+(plan.source==='exams'?' '+window.examFeed.status(text):plan.source==='training'?' '+window.work24Feed.status():['benefits','welfare'].includes(plan.source)?' '+window.govBenefits.status():''));
+      say((query?'“'+query+'” 조건으로 ':'')+'현재 읽을 수 있는 목록에서 일치하는 항목을 찾지 못했어요.'+(plan.source==='statistics'?' '+window.scholarshipStats.status():plan.source==='exams'?' '+window.examFeed.status(text):plan.source==='training'?' '+window.work24Feed.status():['benefits','welfare'].includes(plan.source)?' '+window.govBenefits.status():''));
       return true;
     }
     state.topic=plan.mode==='follow'?'compare':plan.source;

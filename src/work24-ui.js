@@ -38,7 +38,7 @@
   function open(){view.onlyInt=false;openCatalogType('일학습병행');refresh();}
   window.work24Feed={refresh,regionFits,showDetails,today,status:()=>status.textContent};
   region.onchange=()=>render();
-  document.querySelector('a[href="#training"]').onclick=open;
+  document.querySelectorAll('a[href="#training"]').forEach(link=>link.addEventListener('click',open));
   addEventListener('hashchange',()=>{if(location.hash==='#training')open();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
   setInterval(()=>{if(!document.hidden)refresh();},900000);
